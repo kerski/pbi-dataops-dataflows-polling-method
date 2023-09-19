@@ -1,0 +1,21 @@
+name: Dataflow Scheduler - Development
+
+trigger: none
+pr: none
+
+schedules:
+- cron: 0/60 * * * *
+  displayName: Every 60 minutes
+  branches:
+    include:
+      - development
+  always: True
+
+jobs:
+- job: Job_1
+  displayName: Dataflow Scheduler - Development
+  pool:
+    vmImage: windows-latest
+  steps:
+  - script: echo This pipeline runs first and will trigger the backup scripts
+  - template: Dataflow-Polling-and-Backup.yml
