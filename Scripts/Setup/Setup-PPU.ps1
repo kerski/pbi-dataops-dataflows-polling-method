@@ -3,7 +3,7 @@
     Description: This script installs the the polling method for version control and testing for the Power BI Dataflows (Gen 1)
 
     Dependencies: 
-    1) Azure CLI installed
+    1) Azure CLI installed and Azure DevOps extension (az extension add --name azure-devops)
     2) Service User must be created beforehand.
     3) Person running the script must have the ability admin rights to Power BI Tenant and at least a Pro license
     4) An existing Azure DevOps instance
@@ -19,11 +19,11 @@ $Bstr = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($SecureStri
 $SvcPwd = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($Bstr)
 
 $ProjectName = Read-Host "Please enter the name of the Azure DevOps project you'd like to create"
+$RepoName = $ProjectName
 $AzDOHostURL = "https://dev.azure.com/"
 $PBIAPIURL = "https://api.powerbi.com/v1.0/myorg"
-$RepoName = "pbi-dataops-dataflows-polling-method"
 $RepoToCopy = "https://github.com/kerski/pbi-dataops-dataflows-polling-method.git"
-$PipelineName = "dataflow-backup $($BuildWSName)"
+$PipelineName = "dataflow-backup $($WSName)"
 
 #Check Inputs
 if(!$WSName -or !$SvcUser -or !$SvcPwd -or !$ProjectName)
@@ -50,10 +50,10 @@ if (Get-Module -ListAvailable -Name "Az.Accounts") {
 #Login into Power BI to Create Workspaces
 Login-PowerBI
 
-Write-Host -ForegroundColor Cyan "Step 1 or 6: Creating Power BI Workspaces" 
+Write-Host -ForegroundColor Cyan "Step 1 or 6: Creating Power BI Workspace" 
 
 #Get Premium Per User Capacity as it will be used to assign to new workspace
-$Cap = Get-PowerBICapacity -Scope Individual
+$Cap = Get-PowerBICapacity -Scope Individual | Where-Object {$_.DisplayName -like "Premium Per User*"}
 
 if(!$Cap.DisplayName -like "Premium Per User*")
 {
@@ -62,49 +62,31 @@ if(!$Cap.DisplayName -like "Premium Per User*")
 }
 
 #Create Build Workspace
-New-PowerBIWorkspace -Name $BuildWSName
+New-PowerBIWorkspace -Name $WSName
 
 #Find Workspace and make sure it wasn't deleted (if it's old or you ran this script in the past)
-$BuildWSObj = Get-PowerBIWorkspace -Scope Organization -Filter "name eq '$($BuildWSName)' and state ne 'Deleted'"
+$WSObj = Get-PowerBIWorkspace -Scope Organization -Filter "name eq '$($WSName)' and state ne 'Deleted'"
 
-if($BuildWSObj.Length -eq 0)
+if($WSObj.Length -eq 0)
 {
-  Throw "$($BuildWSName) workspace was not created."
+  Throw "$($WSName) workspace was not created."
 }
 
 #Update properties
-Set-PowerBIWorkspace -Description $BuildDesc -Scope Organization -Id $BuildWSObj.Id.Guid
-Set-PowerBIWorkspace -CapacityId $Cap.Id.Guid -Scope Organization -Id $BuildWSObj.Id.Guid 
+Set-PowerBIWorkspace -Description "Workspace for Power BI Dataflow Polling" -Scope Organization -Id $WSObj.Id.Guid
+Set-PowerBIWorkspace -CapacityId $Cap.Id.Guid -Scope Organization -Id $WSObj.Id.Guid 
 
 #Assign service account admin rights to this workspace
-Add-PowerBIWorkspaceUser -Id $BuildWSObj[$BuildWSObj.Length-1].Id.ToString() -AccessRight Admin -UserPrincipalName $SvcUser
+Add-PowerBIWorkspaceUser -Id $WSObj[$WSObj.Length-1].Id.ToString() -AccessRight Admin -UserPrincipalName $SvcUser
 
-#Create Dev Workspace
-New-PowerBIWorkspace -Name $DevWSName
-
-#Find Workspace and make sure it wasn't deleted (if it's old or you ran this script in the past)
-$DevWSObj = Get-PowerBIWorkspace -Scope Organization -Filter "name eq '$($DevWSName)' and state ne 'Deleted'"
-
-if($DevWSObj.Length -eq 0)
-{
-  Throw "$($DevWSName) workspace was not created."
-}
-
-#Update properties
-Set-PowerBIWorkspace -Description $DevDesc -Scope Organization -Id $DevWSObj.Id.Guid
-Set-PowerBIWorkspace -CapacityId $Cap.Id.Guid -Scope Organization -Id $DevWSObj.Id.Guid 
-
-#Assign service account admin rights to this workspace
-Add-PowerBIWorkspaceUser -Id $DevWSObj[$DevWSObj.Length-1].Id.ToString() -AccessRight Admin -UserPrincipalName $SvcUser
-
-Write-Host "Build Workspace ID: $($BuildWSObj.Id.Guid)"
-Write-Host "Development Workspace ID: $($DevWSObj.Id.Guid)"
-
+Write-Host "Workspace ID: $($WSObj.Id.Guid)"
 
 ### Now Setup Azure DevOps
+Write-Host -ForegroundColor Cyan "Step 2 of 6: Creating Azure DevOps project"
+
+#Login using Azure CLI
 $LogInfo = az login | ConvertFrom-Json
 
-Write-Host -ForegroundColor Cyan "Step 2 of 6: Creating Azure DevOps project"
 #Assumes organization name matches $LogInfo.name and url for Azure DevOps Service is https://dev.azure.com
 $ProjectResult = az devops project create `
                 --name $ProjectName `
@@ -140,8 +122,7 @@ if(!$RepoResult) {
 Write-Host -ForegroundColor Cyan "Step 4 of 6: Creating PAT Token"
 
 #Get the Azure Ad AccessToken
-$null = Connect-AzAccount
-$ADToken = Get-AzAccessToken
+$ADToken = az account get-access-token | ConvertFrom-Json
 
 <# Thanks to @autosysops for this article 
    which helped me generate PAT tokens
@@ -153,11 +134,11 @@ $ADToken = Get-AzAccessToken
 #Create the authentication header for the DevOps API
 $Headers = @{
     "Content-Type" = "application/json"
-    Authorization = "Bearer $($ADToken.Token)"
+    Authorization = "Bearer $($ADToken.accessToken)"
 }
       
 #Retrieve all tokens
-$Url = "https://vssps.dev.azure.com/$($OrgName)/_apis/tokens/pats?api-version=7.1-preview.1"
+$Url = "https://vssps.dev.azure.com/$($LogInfo.name)/_apis/tokens/pats?api-version=7.1-preview.1"
 
 # Set Valid To expiration
 $Today = Get-Date
@@ -170,7 +151,7 @@ $PATGuid = New-Guid
 # Setup payload to create token
 $Body = @{
   displayName = "Polling Pipeline for backing up Power BI dataflows ($($PATGuid.Guid))"
-  scope = "vso.build vso.release"
+  scope = "vso.code"
   validTo = "$($FutureDateISO)"
   allOrgs = "false"
 }
@@ -194,7 +175,7 @@ $PipelineResult = az pipelines create --name $PipelineName --repository-type "tf
                 --project $ProjectName `
                 --repository $ProjectName `
                 --branch "main" `
-                --yaml-path "Dataflow-Polling-and-Backup-Schedule-Dev.yml" --skip-first-run --only-show-errors | ConvertFrom-Json
+                --yaml-path "/Scripts/CI/Dataflow-Polling-and-Backup-Schedule-Dev.yml" --skip-first-run --only-show-errors | ConvertFrom-Json
 
 #Check Result
 if(!$PipelineResult) {
@@ -271,7 +252,7 @@ if(!$VarResult) {
 $VarResult = az pipelines variable create --name "PBI_DEV_WS_ID" --only-show-errors `
             --allow-override true --org "$($AzDOHostURL)$($LogInfo.name)" `
             --pipeline-name $PipelineName `
-            --project $ProjectName --value $BuildWSObj.Id.Guid
+            --project $ProjectName --value $WSObj.Id.Guid
 
 #Check Result
 if(!$VarResult) {
@@ -319,5 +300,4 @@ Write-Host -ForegroundColor Green "Azure DevOps Project $($ProjectName) created 
 
 #Clean up
 #az devops project delete --id $ProjectInfo.id --organization "https://dev.azure.com/$($LogInfo.name)" --yes
-#Invoke-PowerBIRestMethod -Url "groups/$($DevWSObj.Id.Guid)" -Method Delete 
-#Invoke-PowerBIRestMethod -Url "groups/$($BuildWSObj.Id.Guid)" -Method Delete
+#Invoke-PowerBIRestMethod -Url "groups/$($WSObj.Id.Guid)" -Method Delete

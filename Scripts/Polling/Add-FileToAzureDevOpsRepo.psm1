@@ -12,7 +12,7 @@ The name of the GitHub repository owner.
 The name of the GitHub repository.
 
 .PARAMETER AccessToken
-The access token to authenticate with the GitHub API.
+The access token to authenticate with the Azure DevOps API.
 
 .PARAMETER BranchName
 The name of the branch to commit the file to.
@@ -62,6 +62,8 @@ function Add-FileToAzureDevOpsRepo {
         [Parameter(Mandatory = $true)]
         [string]$CommitMessage
     )
+    Write-Host "CommitMessage $($CommitMessage)"
+
     # Setup URLs to issue to Azure DevOps
     $uriOrga = "$($ADOAPIHost)/$($OrganizationName)/" 
     $aDOAuthenicationHeader = @{Authorization = 'Basic ' + [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(":$($AccessToken)")) }

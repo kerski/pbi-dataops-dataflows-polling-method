@@ -4,9 +4,9 @@
     Description:  Backups Power BI Dataflows to Azure DevOps repo
 #>
 # Import Modules
-Import-Module "./scripts/polling/Add-FileToAzureDevOpsRepo.psm1" -Force
-Import-Module "./scripts/polling/Get-FileFromAzureDevOpsRepo.psm1" -Force
-Import-Module "./scripts/polling/Format-Json.psm1" -Force
+Import-Module "./Scripts/Polling/Add-FileToAzureDevOpsRepo.psm1" -Force
+Import-Module "./Scripts/Polling/Get-FileFromAzureDevOpsRepo.psm1" -Force
+Import-Module "./Scripts/Polling/Format-Json.psm1" -Force
 
 #Install Powershell Module if Needed
 if (Get-Module -ListAvailable -Name "MicrosoftPowerBIMgmt") {
@@ -16,14 +16,15 @@ if (Get-Module -ListAvailable -Name "MicrosoftPowerBIMgmt") {
 }
 
 # Bring Environment Variables
-$BranchName = ${env:BUILD_SOURCE_BRANCH}.Substring(${env:BUILD_SOURCE_BRANCH}.LastIndexOf("/")+1)
+$BranchName = "${env:BUILD_SOURCEBRANCHNAME}"
+Write-Host "Branch Name: $($BranchName)"
 
 $Opts = @{
     TenantId = "${env:TENANT_ID}";
     UserName = "${env:PPU_USERNAME}";
     Password = "${env:PPU_PASSWORD}";
     PATToken = "${env:PAT_TOKEN}";
-    ADOAPIHost = "${env:ADO_API_HOST}";
+    APIHost = "${env:API_HOST}";
     OrganizationName = "${env:ORGANIZATION_NAME}";
     ProjectName = "${env:PROJECT_NAME}";
     RepositoryName = "${env:REPOSITORY_NAME}";
@@ -63,7 +64,7 @@ $Credentials = [System.Management.Automation.PSCredential]::new($Opts.UserName,$
 $ConnectionStatus = Connect-PowerBIServiceAccount -Credential $Credentials
 
 # Extract Dataflows from the workspace
-$DFs = Get-PowerBIDataflow -WorkspaceId $WorkspaceId
+$DFs = @(Get-PowerBIDataflow -WorkspaceId $WorkspaceId)
 
 # Iterate thru list now and make sure to update repo when timestamps doesn't exist or mismatch
 foreach($DF in $DFs)
@@ -82,41 +83,43 @@ foreach($DF in $DFs)
         $ExportDFInFormattedJSON = Format-Json $ExportDFInJSON            
 
         # Check Azure DevOps for File
-        $TempItem = Get-FileFromAzureDevOpsRepo -ADOAPIHost $Opts.ADOAPIHost `
+        $TempItem = Get-FileFromAzureDevOpsRepo -ADOAPIHost $Opts.APIHost `
                                                 -OrganizationName $Opts.OrganizationName `
                                                 -ProjectName $Opts.ProjectName `
                                                 -RepositoryName $Opts.RepositoryName `
-                                                -AccessToken $Opts.AccessToken `
+                                                -AccessToken $Opts.PATToken `
                                                 -BranchName "$($BranchName)" `
-                                                -Path "dataflows/$($DF.Name)/$($DF.Name).json"                                                  
+                                                -Path "Dataflows/$($DF.Name)/$($DF.Name).json"                                                  
 
         # if it exists then we check if we need to update
         if($TempItem){
             # Check Times are equal
             if(!($TempItem.modifiedTime -eq $ExportDF.modifiedTime))
             {
+                Write-Host "$($DF.Name) has been updated, committing dataflow to repository branch $($BranchName)."
                 # Save
-                Add-FileToAzureDevOpsRepo -ADOAPIHost $Opts.ADOAPIHost `
+                Add-FileToAzureDevOpsRepo -ADOAPIHost $Opts.APIHost `
                                             -OrganizationName $Opts.OrganizationName `
                                             -ProjectName $Opts.ProjectName `
                                             -RepositoryName $Opts.RepositoryName `
-                                            -AccessToken $Opts.AccessToken `
+                                            -AccessToken $Opts.PATToken `
                                             -BranchName "$($BranchName)" `
-                                            -Path "dataflows/$($DF.Name)/$($DF.Name).json" `
-                                            -Content $ExportDFInFormattedJSON
+                                            -Path "Dataflows/$($DF.Name)/$($DF.Name).json" `
+                                            -Content $ExportDFInFormattedJSON `
                                             -CommitMessage "Updating $($DF.Name): $($ExportDF.modifiedTime)"
             }# end if
         }
         else{ # new file to add
+                Write-Host "$($DF.Name) has been added, committing dataflow to repository branch $($BranchName)."
                 # Save
-                Add-FileToAzureDevOpsRepo -ADOAPIHost $Opts.ADOAPIHost `
+                Add-FileToAzureDevOpsRepo -ADOAPIHost $Opts.APIHost `
                                             -OrganizationName $Opts.OrganizationName `
                                             -ProjectName $Opts.ProjectName `
                                             -RepositoryName $Opts.RepositoryName `
-                                            -AccessToken $Opts.AccessToken `
+                                            -AccessToken $Opts.PATToken `
                                             -BranchName "$($BranchName)" `
-                                            -Path "dataflows/$($DF.Name)/$($DF.Name).json" `
-                                            -Content $ExportDFInFormattedJSON
+                                            -Path "Dataflows/$($DF.Name)/$($DF.Name).json" `
+                                            -Content $ExportDFInFormattedJSON `
                                             -CommitMessage "Adding $($DF.Name): $($ExportDF.modifiedTime)"                
         }#end if
     }Catch [System.Exception]{

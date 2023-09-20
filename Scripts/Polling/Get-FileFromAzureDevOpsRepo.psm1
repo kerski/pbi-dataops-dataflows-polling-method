@@ -12,7 +12,7 @@ The name of the GitHub repository owner.
 The name of the GitHub repository.
 
 .PARAMETER AccessToken
-The access token to authenticate with the GitHub API.
+The access token to authenticate with the Azure DevOps API.
 
 .PARAMETER BranchName
 The name of the branch to commit the file to.
@@ -74,7 +74,7 @@ function Get-FileFromAzureDevOpsRepo {
 
        Try{
             # Attempt to retrieve item
-            $file = Invoke-RestMethod -Uri $uriGetItem -Method Get -Headers $aDOAuthenicationHeader -ContentType "application/json" 
+            $file = Invoke-RestMethod -Uri $uriGetItem -Method Get -Headers $aDOAuthenicationHeader -ContentType "application/json"
             # Check for Branch ref
             if(!$file)
             {
