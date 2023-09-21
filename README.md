@@ -60,4 +60,4 @@ Example of managing version control and testing of Gen1 Power BI dataflows witho
 
 ## Next Steps
 
-Now that installation steps are completed, please review and share the instructions for [Cloning the Project](./documentation/clone-project.md)
+Now that installation steps are completed, please review and share the instructions for [Cloning the Project](./Documentation/clone-project.md)
