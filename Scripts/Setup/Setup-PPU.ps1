@@ -151,7 +151,7 @@ $PATGuid = New-Guid
 # Setup payload to create token
 $Body = @{
   displayName = "Polling Pipeline for backing up Power BI dataflows ($($PATGuid.Guid))"
-  scope = "vso.code"
+  scope = "vso.code_write"
   validTo = "$($FutureDateISO)"
   allOrgs = "false"
 }
@@ -240,7 +240,7 @@ if(!$VarResult) {
 $VarResult = az pipelines variable create --name "PAT_TOKEN" --only-show-errors `
             --allow-override true --org "$($AzDOHostURL)$($LogInfo.name)" `
             --pipeline-name $PipelineName `
-            --project $ProjectName --value $PATToken --secret $TRUE
+            --project $ProjectName --value $PATToken.patToken.token --secret $TRUE
 
 #Check Result
 if(!$VarResult) {
