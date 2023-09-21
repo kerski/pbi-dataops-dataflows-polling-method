@@ -55,7 +55,7 @@ Example of managing version control and testing of Gen1 Power BI dataflows witho
 
 1. If the script runs successfully you will be presented with a message similar in the image below. 
 
-    ![Example of successful install](./documentation/images/success-install.png)
+    ![Example of successful install](./Documentation/Images/success-install.png)
 
 
 ## Next Steps

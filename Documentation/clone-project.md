@@ -26,21 +26,21 @@ Azure DevOps is a product that can host a repository (a.k.a. repo).  This repo i
 
 2. Click the "Clone in VS Code" button.
 
-![Clone Repository](./images/clone-repository.png)
+![Clone Repository](./Images/clone-repository.png)
 
 3. You may be prompted by a couple of pop-ups.  Please accept.
 
-![Clone Popup](./images/clone-popup.png)
+![Clone Popup](./Images/clone-popup.png)
 
 4. Next you will be prompted to select where you want to clone the repository on your computer.  Please select an appropriate location.  One suggestion would be to have a folder called "Git" and then place this project there.
 
 5. If all goes well, Visual Studio Code will open and you will be prompted to open the project.  I suggest clicking the "Open in New Window" button.
 
-![Clone Message](./images/clone-message.png)
+![Clone Message](./Images/clone-message.png)
 
 6. From Visual Studio Code click the terminal menu option and select "New Terminal".
 
-![Terminal](./images/terminal.png)
+![Terminal](./Images/terminal.png)
 
 7. From the terminal run: "Get-ChildItem -Path '.' -Recurse | Unblock-File"
 
@@ -48,11 +48,11 @@ This will allow us to run the Powershell scripts locally
 
 8. From the terminal run: "git checkout development". 
 
-![Git Checkout](./images/git-checkout.png)
+![Git Checkout](./Images/git-checkout.png)
 
 This will move you to the development branch where you should be performing your updates.  You can verify that you are in the right branch by looking at the bottom right of Visual Studio.  If you see "development", you've successfully completed this step.
 
-![Git Checkout](./images/part-x-branch.png)
+![Git Checkout](./Images/part-x-branch.png)
 
 9. Your project is now setup for developing.  Sometimes Visual Studio code will ask you if you want to call Git Fetch on your behalf.  Choose yes and this will provide updates from the repository in Azure DevOps.
 
