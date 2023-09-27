@@ -12,8 +12,8 @@ Example of managing version control and testing of Gen1 Power BI dataflows witho
 1. Version Control
     1. [Cloning the Project](./documentation/clone-project.md)
 1. Testing
+    1. [Building and Running Tests](./documentation/setup-testing.md)
     1. [Generating Tests](./documentation/generate-tests.md)
-    1. [Running Tests](./documentation/run-tests.md)
 
 ## Prerequisites
 

@@ -47,6 +47,21 @@ if (Get-Module -ListAvailable -Name "Az.Accounts") {
     Install-Module -Name Az -Repository PSGallery -Force -Scope CurrentUser -AllowClobber
 }
 
+# Setup Dataflows
+$DFFilePath = "./RawSourceExample.json"
+$DFExURI = "https://raw.githubusercontent.com/kerski/pbi-dataops-template/part22/SetupScripts/PremiumPerUser/DataFlows/RawSourceExample.json"
+
+# PowerShell DataFlow Scripts
+$DFUtilsURI = "https://raw.githubusercontent.com/kerski/powerbi-powershell/master/examples/dataflows/DFUtils.psm1"
+$GraphURI = "https://raw.githubusercontent.com/kerski/powerbi-powershell/master/examples/dataflows/Graph.psm1"
+$ImportURI = "https://raw.githubusercontent.com/kerski/powerbi-powershell/master/examples/dataflows/ImportModel.ps1"
+
+#Download scripts for Graph, DFUtils, and Import-Module.ps1
+Invoke-WebRequest -Uri $DFUtilsURI -OutFile "./DFUtils.psm1"
+Invoke-WebRequest -Uri $GraphURI -OutFile "./Graph.psm1"
+Invoke-WebRequest -Uri $ImportURI -OutFile "./ImportModel.ps1"
+Invoke-WebRequest -Uri $DFExURI -OutFile $DFFilePath 
+
 #Login into Power BI to Create Workspaces
 Login-PowerBI
 
@@ -82,7 +97,7 @@ Add-PowerBIWorkspaceUser -Id $WSObj[$WSObj.Length-1].Id.ToString() -AccessRight 
 Write-Host "Workspace ID: $($WSObj.Id.Guid)"
 
 ### Now Setup Azure DevOps
-Write-Host -ForegroundColor Cyan "Step 2 of 6: Creating Azure DevOps project"
+Write-Host -ForegroundColor Cyan "Step 2 of 7: Creating Azure DevOps project"
 
 #Login using Azure CLI
 $LogInfo = az login | ConvertFrom-Json
@@ -105,7 +120,7 @@ if(!$ProjectResult) {
 #Convert Result to JSON
 $ProjectInfo = $ProjectResult | ConvertFrom-JSON
 
-Write-Host -ForegroundColor Cyan "Step 3 of 6: Creating Repo in Azure DevOps project"
+Write-Host -ForegroundColor Cyan "Step 3 of 7: Creating Repo in Azure DevOps project"
 #Import Repo for kerski's GitHub
 $RepoResult = az repos import create --git-source-url $RepoToCopy `
             --org "$($AzDOHostURL)$($LogInfo.name)" `
@@ -119,7 +134,7 @@ if(!$RepoResult) {
 }
 
 # Step 4
-Write-Host -ForegroundColor Cyan "Step 4 of 6: Creating PAT Token"
+Write-Host -ForegroundColor Cyan "Step 4 of 7: Creating PAT Token"
 
 #Get the Azure Ad AccessToken
 $ADToken = az account get-access-token | ConvertFrom-Json
@@ -166,7 +181,7 @@ if(!$PATToken)
     Throw "Unable to generate PAT Token"
 }
 
-Write-Host -ForegroundColor Cyan "Step 5 of 6: Creating Pipeline in Azure DevOps project"
+Write-Host -ForegroundColor Cyan "Step 5 of 7: Creating Pipeline in Azure DevOps project"
 
 #Service connection required for non Azure Repos can be optionally provided in the command to run it non interatively
 $PipelineResult = az pipelines create --name $PipelineName --repository-type "tfsgit" `
@@ -295,6 +310,14 @@ if(!$VarResult) {
     Write-Error "Unable to create pipeline variable TENANT_ID"
     return
 }
+
+# Write upload test file
+Write-Host -ForegroundColor Cyan "Step 7 of 7: Uploading sample dataflow into workspace"
+# This command sets the execution policy to bypass for only the current PowerShell session after the window is closed,
+# the next PowerShell session will open running with the default execution policy.
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+# Upload Example Data Flow
+.\ImportModel.ps1 -Workspace $WSObj -File $DFFilePath
 
 Write-Host -ForegroundColor Green "Azure DevOps Project $($ProjectName) created with pipeline $($PipelineName) at $($AzDOHostURL)$($LogInfo.name)"
 
