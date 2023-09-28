@@ -4,11 +4,11 @@ Background: Setup Connection to DFTest datast for the dataflow
     Given we have access to the DFTest file in the Workspace: "{WORKSPACE}"
     And we have access to the Dataflow: "{DATAFLOW}"    
     And we have the table called "{TABLE}"
-    #And we can setup the table for testing
+    And we can setup the table for testing
 
 Scenario: Validate {TABLE} Schema
-	Then there should be greater than 100 records returned
+	Then there should be greater than 0 records returned
     And the values in "{INSERT VALUE}" are unique
-    And the values of "{INSERT VALUE}" matches this regex: "^\d{3}$"
+    And the values of "{INSERT VALUE}" matches this regex: "^\d{4}$"
     And it should contain the schema defined as follows:
 	| Name          | Type          |
