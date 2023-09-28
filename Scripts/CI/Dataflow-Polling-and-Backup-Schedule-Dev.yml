@@ -8,7 +8,7 @@ schedules:
   displayName: Every 60 minutes
   branches:
     include:
-      - development
+      - main
   always: True
 
 jobs:

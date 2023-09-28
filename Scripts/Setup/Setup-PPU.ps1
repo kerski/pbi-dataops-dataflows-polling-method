@@ -319,16 +319,6 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 # Upload Example Data Flow
 .\ImportModel.ps1 -Workspace $WSName -File $DFFilePath
 
-# Update example feature 
-$ExampleContentPath = ".\Dataflows\RawSourceExample\CI\Feature\RawSourceExampleTest.feature"
-$ExampleContent = Get-Content -Path $ExampleContentPath
-
-# Replace placeholders in template
-$ExampleContent = $ExampleContent -replace '{WORKSPACE}', $WSName
-
-# Write Filled Out Template to model's folder
-Out-File -FilePath $ExampleContentPath -Force -InputObject $TemplateContent
-
 Write-Host -ForegroundColor Green "Azure DevOps Project $($ProjectName) created with pipeline $($PipelineName) at $($AzDOHostURL)$($LogInfo.name)"
 
 #Clean up
