@@ -1,7 +1,7 @@
 Feature: RawSourceExample
 
 Background: Setup Connection to DFTest datast for the dataflow
-    Given we have access to the DFTest file in the Workspace: "pbi-df-gen1-dataops-template"
+    Given we have access to the DFTest file in the Workspace: "{WORKSPACE}"
     And we have access to the Dataflow: "RawSourceExample"    
     And we have the table called "MarvelSource"
     #And we can setup the table for testing
