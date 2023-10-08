@@ -12,3 +12,4 @@ Scenario: Validate {TABLE} Schema
     And the values of "{INSERT VALUE}" matches this regex: "^\d{4}$"
     And it should contain the schema defined as follows:
 	| Name          | Type          |
+{SCHEMA}

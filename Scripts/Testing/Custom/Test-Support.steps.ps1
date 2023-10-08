@@ -298,7 +298,7 @@ $PassedRowChecks | Should -Be $True
 if($ContainOrMatch -eq 'match')
 {
   #Number of Columns should match
-  $Table.Count | Should -Be $_ExportDF.attributes.Count
+  $Table.Count | Should -Be $EntityCheck.attributes.Count
 }
 }
 

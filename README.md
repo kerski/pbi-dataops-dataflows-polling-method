@@ -11,6 +11,7 @@ Example of managing version control and testing of Gen1 Power BI dataflows witho
 1. [Installation Steps](#Installation-Steps)
 1. Version Control
     1. [Cloning the Project](./documentation/clone-project.md)
+    1. [Backup Process](./documentation/backup-process.md)
 1. Testing
     1. [Building and Running Tests](./documentation/setup-testing.md)
     1. [Generating Tests](./documentation/generate-tests.md)
@@ -57,7 +58,11 @@ Example of managing version control and testing of Gen1 Power BI dataflows witho
 
     ![Example of successful install](./Documentation/Images/success-install.png)
 
+## Notes on Microsoft-Hosted agents
+Note:  For those working with Microsoft Hosted Agents under the free offering, you need to be careful how often you run the installed pipeline as [you may hit the cap](https://learn.microsoft.com/en-us/azure/devops/pipelines/agents/hosted?view=azure-devops&tabs=yaml#capabilities-and-limitations).
 
 ## Next Steps
 
 Now that installation steps are completed, please review and share the instructions for [Cloning the Project](./Documentation/clone-project.md)
+
+

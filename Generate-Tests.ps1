@@ -95,6 +95,12 @@
         return      
     }  
 
+    # Build Schema
+    $SchemaString = ""
+    foreach($Attr in $TableToTest.attributes){
+        $SchemaString += "`t|$($Attr.name)|`t$($Attr.dataType)|$([Environment]::NewLine)"
+    }# end foreach
+
     # Set output
 
     # Remove special characters
@@ -133,6 +139,7 @@
     $TemplateContent = $TemplateContent -replace '{WORKSPACE}', $Workspace
     $TemplateContent = $TemplateContent -replace '{DATAFLOW}', $Dataflow
     $TemplateContent = $TemplateContent -replace '{TABLE}', $Table
+    $TemplateContent = $TemplateContent -replace '{SCHEMA}', $SchemaString
 
     # Write Filled Out Template to model's folder
     Out-File -FilePath $Output_TemplatePath -Force -InputObject $TemplateContent
