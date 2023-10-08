@@ -10,7 +10,7 @@
 
 Using the method, dataflows are polled for changes at regular intervals and commit those changes to an <a href="https://learn.microsoft.com/en-us/azure/devops/repos/get-started/what-is-repos?view=azure-devops" target="_blank">Azure Repo</a> (see Figure 1).
 
-![Figure 1](./images/backup-process.png)
+![Figure 1](./Images/backup-process.png)
 
 *Figure 1 - Illustrates the high-level polling process and components used to backup dataflows to Git.*
 <br/>
@@ -28,7 +28,7 @@ This polling process is driven by two YAML files:
 
 -   Checking if the Azure Repo (I also use the term repo and repository synonymously with Azure Repo) has the dataflow. If not, it adds the dataflow to the repository. If the dataflow does exist, the script inspects the "modifiedTime" properties to review timestamps. If they do not match, we commit a new version to the repository.
 
-![Figure 2](./images/yaml.png)
+![Figure 2](./Images/yaml.png)
 
 *Figure 2 - Illustrates how two YAML files implement the Polling Method.*
 
