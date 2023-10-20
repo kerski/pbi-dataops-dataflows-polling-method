@@ -19,7 +19,7 @@ In order to be able to test locally, you need to have a test dataset in the work
 
 3. Open the template file labeled DFTest-ServiceAccount.pbit located in this project's path "TestingScripts\Custom\Templates"
 
-![Template](./Images/dftest-serviceaccount.png)
+![Template](./Images/DFTest-ServiceAccount.png)
 
 4. A template popup will appear.
 
