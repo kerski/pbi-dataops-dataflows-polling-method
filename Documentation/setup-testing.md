@@ -11,27 +11,27 @@ In order to be able to test locally, you need to have a test dataset in the work
 
 1. In PowerShell Terminal, enter the "$env:USERNAME". Copy that text for use later in these instructions.
 
-![Username](./images/username.png)
+![Username](./Images/username.png)
 
 2. Go to the workspace that houses your dataflow and then click on a dataflow you will be testing. Copy the Workspace ID (circled in orange below) and Dataflow ID (outlined in red below) and save for use later in these instructions.
 
-![Workspace ID and Dataflow ID](./images/url-example.png)
+![Workspace ID and Dataflow ID](./Images/url-example.png)
 
 3. Open the template file labeled DFTest-ServiceAccount.pbit located in this project's path "TestingScripts\Custom\Templates"
 
-![Template](./images/dftest-serviceaccount.png)
+![Template](./Images/dftest-serviceaccount.png)
 
 4. A template popup will appear.
 
-![Template Popup](./images/template-popup.png)
+![Template Popup](./Images/template-popup.png)
 
 5. When the template's popup appears enter the Workspace ID and Dataflow ID you copied in step 2.  Enter "XYZ" in the text box for Run_ID.  Then press load.
 
-![Template Popup Filled out](./images/template-popup-2.png)
+![Template Popup Filled out](./Images/template-popup-2.png)
 
 6. When the template loads the data, go to File and select Save As.  Enter the name "DFTest-{USERNAME}" and replace "{USERNAME} with the username you copied in step 1.
 
-![Save Template](./images/save-template.png)
+![Save Template](./Images/save-template.png)
 
 7. Publish to the workspace which houses your dataflows.  If you do not know how to publish this file, please read the instructions: [Publish datasets and reports from Power BI Desktop](https://learn.microsoft.com/en-us/power-bi/create-reports/desktop-upload-desktop-files)
 

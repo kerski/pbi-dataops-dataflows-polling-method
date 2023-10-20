@@ -25,7 +25,7 @@ Building tests are based on two files:
 
 This is the plain language explanation of the tests to be performed.  The screenshot below provides an example.
 
-![Sample Feature](./images/feature-example.png)
+![Sample Feature](./Images/feature-example.png)
 
 ### .steps.ps1 file
 
@@ -117,21 +117,21 @@ This script allows you to run the tests you created for each Power BI dataflow. 
 
 2. Then within Visual Studio Code click the terminal menu option and select "New Terminal".
 
-![Terminal](./images/new-terminal.png)
+![Terminal](./Images/new-terminal.png)
 
 3. Then from the terminal enter the command './Run-DFTests.ps1 -Dataflow "{DataflowName}"'. Replace {DataflowName} which the name of the dataflow you wish to test.
 
-![Run DFTests.ps1](./images/run-df-tests.png)
+![Run DFTests.ps1](./Images/run-df-tests.png)
 
 NOTE: During the course of the testing, you may be prompted to log into Office via pop-ups at least twice. This is to authenticate you with the Power BI Service.
 
 5. If the test cases pass, then you will see in the terminal a confirmation of success with a message "SUCCESS: All test cases passed."
 
-![Success DFTests](./images/success-run-df-tests.png)
+![Success DFTests](./Images/success-run-df-tests.png)
 
 6. If a test fails, then you will see in the terminal which test cases failed (see example).
 
-![Failed PBITests](./images/failed-run-pbi-tests.png)
+![Failed PBITests](./Images/failed-run-pbi-tests.png)
 
 ### Running a Specific Test
 
@@ -139,7 +139,7 @@ If you do not want to run a specific test, you can do so by following these step
 
 1. Then from the terminal enter the command ./Run-DFTests.ps1 -Dataflow "{DataflowName}" -Feature "{FeatureName}"
 
-![Run DFTests For Specific Test](./images/run-specific-test.png)
+![Run DFTests For Specific Test](./Images/run-specific-test.png)
 
 The command takes two parameters:
 
