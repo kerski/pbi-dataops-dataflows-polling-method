@@ -501,7 +501,7 @@ if($Rows) #Query got results
     }
 
     #Get Unique Values
-    $TempNoMatches = $TempNoMatches | Sort-Object | Get-Unique
+    $TempNoMatches = @($TempNoMatches | Sort-Object | Get-Unique)
 
     #Increment counter if regex test fails (if got results)
     if($TempNoMatches.Count -gt 0)
